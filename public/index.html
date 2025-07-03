@@ -9,22 +9,45 @@
 </head>
 
 <body>
+  <!-- Loading Screen -->
   <div id="loadingScreen">
     <div class="spinner"></div>
     <h2>Loading Norch...</h2>
   </div>
 
-  <div class="chat-container">
-    <header><h1>💬 NORCH BY APRIL MANALO</h1></header>
+  <!-- Login screen -->
+  <div class="login-screen">
+    <input type="text" id="username" placeholder="Enter your name..." />
+    <button onclick="startChat()">Start Chat</button>
+  </div>
+
+  <!-- Chat UI -->
+  <div class="chat-container hidden">
+    <header>
+      <h1>💬 NORCH BY APRIL MANALO</h1>
+      <div class="menu-toggle" onclick="toggleAbout()">⋯</div>
+    </header>
+
     <div class="chat-box"></div>
+
     <form id="chatForm">
       <input id="userInput" type="text" placeholder="Ask me anything..." autocomplete="off" />
       <button type="submit">Send</button>
-      <button onclick="clearChat()">🗑️ Clear</button>
+      <button type="button" onclick="clearChat()">🗑️ Clear</button>
     </form>
   </div>
 
-  <!-- Markdown -->
+  <!-- About Norch modal -->
+  <div id="aboutModal" class="about-modal hidden">
+    <div class="about-content">
+      <h2>🤖 About Norch</h2>
+      <p><strong>Norch</strong> is a Filipino AI assistant powered by GPT-4, created by <strong>April Manalo</strong> and trained by the <strong>Norch Team</strong>.</p>
+      <p>Norch supports Markdown, LaTeX, and has local memory per user. Use it to ask anything in English or Tagalog.</p>
+      <button onclick="toggleAbout()">Close</button>
+    </div>
+  </div>
+
+  <!-- Markdown Support -->
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 
   <!-- MathJax -->
@@ -36,7 +59,15 @@
   </script>
   <script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
 
-  <!-- Your JS -->
+  <!-- Main Script -->
   <script src="/script.js"></script>
+
+  <!-- Toggle About Script -->
+  <script>
+    function toggleAbout() {
+      const modal = document.getElementById("aboutModal");
+      modal.classList.toggle("hidden");
+    }
+  </script>
 </body>
 </html>
