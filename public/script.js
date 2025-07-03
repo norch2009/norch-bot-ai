@@ -4,16 +4,27 @@ const chatBox = document.querySelector(".chat-box");
 const loading = document.getElementById("loadingScreen");
 const container = document.querySelector(".chat-container");
 
-// Optional: restore past messages (future-ready)
-let chatHistory = JSON.parse(localStorage.getItem("norchHistory")) || [];
+// Memory per user
+let username = "";
+let chatHistory = [];
+
+// Show chat after login
+function startChat() {
+  username = document.getElementById("username").value.trim().toLowerCase();
+  if (!username) return alert("Please enter your name!");
+
+  document.querySelector(".login-screen").style.display = "none";
+  document.querySelector(".chat-container").classList.remove("hidden");
+
+  chatHistory = JSON.parse(localStorage.getItem(`norch_${username}`)) || [];
+  renderStoredChat();
+}
 
 window.onload = () => {
   setTimeout(() => {
     loading.style.opacity = "0";
     setTimeout(() => {
       loading.style.display = "none";
-      container.classList.add("visible");
-      renderStoredChat(); // restore old messages
     }, 500);
   }, 1500);
 };
@@ -32,20 +43,15 @@ form.addEventListener("submit", async (e) => {
   appendThinkingAnimation();
 
   try {
-    const res = await fetch("https://gpt-40.onrender.com/api/gpt", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        messages: [
-          {
-            role: "system",
-            content: "You are Norch, a Filipino GPT AI assistant created by April Manalo and trained by the Norch Team. Answer politely and clearly. Use markdown and LaTeX formatting when needed."
-          },
-          ...chatHistory
-        ]
-      })
-    });
+    const systemPrompt = "You are Norch, a Filipino GPT AI assistant created by April Manalo and trained by the Norch Team. Answer politely and clearly. Use markdown and LaTeX formatting when needed.";
+    
+    const context = chatHistory
+      .map(entry => `${entry.role === "user" ? "User" : "Norch"}: ${entry.content}`)
+      .join("\n");
 
+    const fullPrompt = `${systemPrompt}\n\n${context}\nUser: ${question}`;
+
+    const res = await fetch(`https://gpt-40.onrender.com/api/gpt?ask=${encodeURIComponent(fullPrompt)}`);
     const data = await res.json();
     const botReply = data.response || "⚠️ Empty response.";
 
@@ -117,7 +123,7 @@ function renderMath() {
 }
 
 function saveHistory() {
-  localStorage.setItem("norchHistory", JSON.stringify(chatHistory));
+  localStorage.setItem(`norch_${username}`, JSON.stringify(chatHistory));
 }
 
 function renderStoredChat() {
@@ -127,9 +133,8 @@ function renderStoredChat() {
   });
 }
 
-// Optional: Clear chat feature
 function clearChat() {
-  localStorage.removeItem("norchHistory");
+  localStorage.removeItem(`norch_${username}`);
   chatBox.innerHTML = "";
   chatHistory = [];
 }
