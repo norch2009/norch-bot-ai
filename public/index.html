@@ -6,6 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="icon" href="/favicon.png" />
   <link rel="stylesheet" href="/style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.1/firebase-auth.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.1/firebase-firestore.js"></script>
@@ -90,6 +91,7 @@
       padding: 10px;
       border-radius: 10px;
       margin-top: 15px;
+      display: none;
     }
     #loginPanel {
       margin-top: 15px;
@@ -154,7 +156,7 @@
       <button onclick="register()">📝 Register</button>
     </div>
 
-    <div class="chat-box hidden"></div>
+    <div class="chat-box hidden" id="chatBox"></div>
 
     <form id="chatForm" class="hidden">
       <input id="userInput" type="text" placeholder="Ask me anything..." autocomplete="off" />
@@ -163,7 +165,6 @@
     </form>
   </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <script>
     window.MathJax = {
       tex: { inlineMath: [['\\(', '\\)'], ['$', '$']] },
@@ -171,17 +172,8 @@
     };
   </script>
   <script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
-  <script>
-    window.onload = () => {
-      setTimeout(() => {
-        document.getElementById("loadingScreen").style.opacity = "0";
-        setTimeout(() => {
-          document.getElementById("loadingScreen").style.display = "none";
-          document.querySelector(".chat-container").classList.add("visible");
-        }, 500);
-      }, 1500);
-    };
-  </script>
-  <script src="/script.js"></script>
+
+  <!-- ✅ ✅ ✅ FIXED: ADD type="module" to use ES modules -->
+  <script src="/script.js" type="module"></script>
 </body>
 </html>
