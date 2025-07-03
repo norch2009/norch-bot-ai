@@ -6,50 +6,76 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="icon" type="image/png" href="/favicon.png" />
   <link rel="stylesheet" href="/style.css" />
+
+  <!-- Firebase SDKs -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyD0xMxtjoG1Zj1Jvvn5gFiBND16yHL6oA",
+      authDomain: "norch-app-da539.firebaseapp.com",
+      projectId: "norch-app-da539",
+      storageBucket: "norch-app-da539.appspot.com",
+      messagingSenderId: "610778572844",
+      appId: "1:610778572844:web:bd064667e5dee374e20989"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    window.auth = getAuth(app);
+    window.db = getFirestore(app);
+  </script>
 </head>
 
 <body>
-  <!-- Loading Screen -->
+  <!-- Loading -->
   <div id="loadingScreen">
     <div class="spinner"></div>
     <h2>Loading Norch...</h2>
   </div>
 
-  <!-- Login screen -->
-  <div class="login-screen">
-    <input type="text" id="username" placeholder="Enter your name..." />
-    <button onclick="startChat()">Start Chat</button>
-  </div>
-
-  <!-- Chat UI -->
-  <div class="chat-container hidden">
+  <!-- Header -->
+  <div class="chat-container">
     <header>
       <h1>💬 NORCH BY APRIL MANALO</h1>
-      <div class="menu-toggle" onclick="toggleAbout()">⋯</div>
+      <div class="menu">
+        <button onclick="toggleTheme()">🔁</button>
+        <button onclick="toggleAbout()">⋯</button>
+        <button onclick="logout()">🚪</button>
+      </div>
     </header>
 
-    <div class="chat-box"></div>
+    <!-- About AI -->
+    <div id="aboutSection">
+      <h2>🤖 About Norch</h2>
+      <p>
+        Norch is a Filipino GPT AI assistant created by <strong>April Manalo</strong><br />
+        Trained by the Norch Team. Powered by GPT-40 API.<br />
+        💡 Supports Markdown, LaTeX, Tagalog voice, and memory.
+      </p>
+    </div>
 
-    <form id="chatForm">
+    <!-- Login -->
+    <div class="auth-box" id="loginBox">
+      <input type="email" id="email" placeholder="Email" />
+      <input type="password" id="password" placeholder="Password" />
+      <button onclick="login()">🔓 Login</button>
+      <button onclick="register()">📝 Register</button>
+    </div>
+
+    <!-- Chat -->
+    <div class="chat-box" id="chatBox" hidden></div>
+
+    <form id="chatForm" hidden>
       <input id="userInput" type="text" placeholder="Ask me anything..." autocomplete="off" />
       <button type="submit">Send</button>
-      <button type="button" onclick="clearChat()">🗑️ Clear</button>
+      <button onclick="clearChat()">🗑️</button>
     </form>
   </div>
 
-  <!-- About Norch modal -->
-  <div id="aboutModal" class="about-modal hidden">
-    <div class="about-content">
-      <h2>🤖 About Norch</h2>
-      <p><strong>Norch</strong> is a Filipino AI assistant powered by GPT-4, created by <strong>April Manalo</strong> and trained by the <strong>Norch Team</strong>.</p>
-      <p>Norch supports Markdown, LaTeX, and has local memory per user. Use it to ask anything in English or Tagalog.</p>
-      <button onclick="toggleAbout()">Close</button>
-    </div>
-  </div>
-
-  <!-- Markdown Support -->
+  <!-- Markdown -->
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-
   <!-- MathJax -->
   <script>
     window.MathJax = {
@@ -59,15 +85,7 @@
   </script>
   <script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
 
-  <!-- Main Script -->
-  <script src="/script.js"></script>
-
-  <!-- Toggle About Script -->
-  <script>
-    function toggleAbout() {
-      const modal = document.getElementById("aboutModal");
-      modal.classList.toggle("hidden");
-    }
-  </script>
+  <!-- Script -->
+  <script src="/script.js" type="module"></script>
 </body>
 </html>
