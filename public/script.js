@@ -1,33 +1,52 @@
+import {
+  onAuthStateChanged,
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+  signOut
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import {
+  doc,
+  getDoc,
+  setDoc
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
 const form = document.getElementById("chatForm");
 const input = document.getElementById("userInput");
-const chatBox = document.querySelector(".chat-box");
+const chatBox = document.getElementById("chatBox");
 const loading = document.getElementById("loadingScreen");
 const container = document.querySelector(".chat-container");
+const loginBox = document.getElementById("loginBox");
+const aboutSection = document.getElementById("aboutSection");
 
-// Memory per user
-let username = "";
+let currentUser = null;
 let chatHistory = [];
-
-// Show chat after login
-function startChat() {
-  username = document.getElementById("username").value.trim().toLowerCase();
-  if (!username) return alert("Please enter your name!");
-
-  document.querySelector(".login-screen").style.display = "none";
-  document.querySelector(".chat-container").classList.remove("hidden");
-
-  chatHistory = JSON.parse(localStorage.getItem(`norch_${username}`)) || [];
-  renderStoredChat();
-}
 
 window.onload = () => {
   setTimeout(() => {
     loading.style.opacity = "0";
     setTimeout(() => {
       loading.style.display = "none";
+      container.classList.add("visible");
     }, 500);
   }, 1500);
 };
+
+// Listen for auth state
+onAuthStateChanged(auth, async (user) => {
+  if (user) {
+    currentUser = user;
+    loginBox.hidden = true;
+    chatBox.hidden = false;
+    form.hidden = false;
+    await loadHistory();
+    renderStoredChat();
+  } else {
+    currentUser = null;
+    loginBox.hidden = false;
+    chatBox.hidden = true;
+    form.hidden = true;
+  }
+});
 
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
@@ -36,31 +55,34 @@ form.addEventListener("submit", async (e) => {
 
   appendMessage("user", question);
   input.value = "";
-
   chatHistory.push({ role: "user", content: question });
-  saveHistory();
-
+  await saveHistory();
   appendThinkingAnimation();
 
   try {
-    const systemPrompt = "You are Norch, a Filipino GPT AI assistant created by April Manalo and trained by the Norch Team. Answer politely and clearly. Use markdown and LaTeX formatting when needed.";
-    
-    const context = chatHistory
-      .map(entry => `${entry.role === "user" ? "User" : "Norch"}: ${entry.content}`)
-      .join("\n");
+    const res = await fetch("https://gpt-40.onrender.com/api/gpt", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        messages: [
+          {
+            role: "system",
+            content:
+              "You are Norch, a Filipino GPT AI assistant created by April Manalo and trained by the Norch Team. Answer politely and clearly. Use markdown and LaTeX formatting when needed."
+          },
+          ...chatHistory
+        ]
+      })
+    });
 
-    const fullPrompt = `${systemPrompt}\n\n${context}\nUser: ${question}`;
-
-    const res = await fetch(`https://gpt-40.onrender.com/api/gpt?ask=${encodeURIComponent(fullPrompt)}`);
     const data = await res.json();
     const botReply = data.response || "⚠️ Empty response.";
-
     removeThinkingAnimation();
     appendMessage("bot", botReply, true);
-
+    speakTagalog(botReply);
     chatHistory.push({ role: "assistant", content: botReply });
-    saveHistory();
-  } catch (err) {
+    await saveHistory();
+  } catch {
     removeThinkingAnimation();
     appendMessage("bot", "❌ Failed to connect to GPT-40.");
   }
@@ -73,13 +95,25 @@ function appendMessage(sender, text, isBot = false) {
 
   bubble.innerHTML = `
     <span class="message-text">${html}</span>
-    ${isBot ? `<button class="copyBtn" onclick="copyText(this)" title="Copy">⧉</button>` : ""}
+    ${
+      isBot
+        ? `<button class="copyBtn" onclick="copyText(this)" title="Copy">⧉</button>`
+        : ""
+    }
   `;
 
   chatBox.appendChild(bubble);
   chatBox.scrollTop = chatBox.scrollHeight;
-
   if (isBot) renderMath();
+}
+
+function renderStoredChat() {
+  chatBox.innerHTML = "";
+  chatHistory.forEach((entry) => {
+    if (entry.role === "user") appendMessage("user", entry.content);
+    else if (entry.role === "assistant")
+      appendMessage("bot", entry.content, true);
+  });
 }
 
 function appendThinkingAnimation() {
@@ -122,19 +156,66 @@ function renderMath() {
   }
 }
 
-function saveHistory() {
-  localStorage.setItem(`norch_${username}`, JSON.stringify(chatHistory));
+// Voice in Tagalog
+function speakTagalog(text) {
+  if (!"speechSynthesis" in window) return;
+  const utter = new SpeechSynthesisUtterance(text);
+  utter.lang = "tl-PH";
+  speechSynthesis.speak(utter);
 }
 
-function renderStoredChat() {
-  chatHistory.forEach(entry => {
-    if (entry.role === "user") appendMessage("user", entry.content);
-    else if (entry.role === "assistant") appendMessage("bot", entry.content, true);
+// Theme toggle
+function toggleTheme() {
+  document.body.classList.toggle("light-theme");
+}
+
+// About toggle
+function toggleAbout() {
+  aboutSection.style.display =
+    aboutSection.style.display === "block" ? "none" : "block";
+}
+
+// Auth
+window.login = async () => {
+  const email = document.getElementById("email").value.trim();
+  const pass = document.getElementById("password").value.trim();
+  if (!email || !pass) return alert("Fill both fields");
+  try {
+    await signInWithEmailAndPassword(auth, email, pass);
+  } catch {
+    alert("Login failed.");
+  }
+};
+
+window.register = async () => {
+  const email = document.getElementById("email").value.trim();
+  const pass = document.getElementById("password").value.trim();
+  if (!email || !pass) return alert("Fill both fields");
+  try {
+    await createUserWithEmailAndPassword(auth, email, pass);
+  } catch {
+    alert("Registration failed.");
+  }
+};
+
+window.logout = () => signOut(auth);
+
+window.clearChat = async () => {
+  chatHistory = [];
+  await saveHistory();
+  chatBox.innerHTML = "";
+};
+
+async function saveHistory() {
+  if (!currentUser) return;
+  await setDoc(doc(db, "chats", currentUser.uid), {
+    history: chatHistory
   });
 }
 
-function clearChat() {
-  localStorage.removeItem(`norch_${username}`);
-  chatBox.innerHTML = "";
-  chatHistory = [];
+async function loadHistory() {
+  if (!currentUser) return;
+  const docRef = doc(db, "chats", currentUser.uid);
+  const snap = await getDoc(docRef);
+  chatHistory = snap.exists() ? snap.data().history : [];
 }
