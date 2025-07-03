@@ -12,11 +12,11 @@ import {
 
 const form = document.getElementById("chatForm");
 const input = document.getElementById("userInput");
-const chatBox = document.getElementById("chatBox");
+const chatBox = document.querySelector(".chat-box");
 const loading = document.getElementById("loadingScreen");
 const container = document.querySelector(".chat-container");
-const loginBox = document.getElementById("loginBox");
-const aboutSection = document.getElementById("aboutSection");
+const loginBox = document.getElementById("loginPanel");
+const aboutSection = document.getElementById("aboutPanel");
 
 let currentUser = null;
 let chatHistory = [];
@@ -31,20 +31,19 @@ window.onload = () => {
   }, 1500);
 };
 
-// Listen for auth state
 onAuthStateChanged(auth, async (user) => {
   if (user) {
     currentUser = user;
-    loginBox.hidden = true;
-    chatBox.hidden = false;
-    form.hidden = false;
+    loginBox.classList.add("hidden");
+    chatBox.classList.remove("hidden");
+    form.classList.remove("hidden");
     await loadHistory();
     renderStoredChat();
   } else {
     currentUser = null;
-    loginBox.hidden = false;
-    chatBox.hidden = true;
-    form.hidden = true;
+    loginBox.classList.remove("hidden");
+    chatBox.classList.add("hidden");
+    form.classList.add("hidden");
   }
 });
 
@@ -95,11 +94,7 @@ function appendMessage(sender, text, isBot = false) {
 
   bubble.innerHTML = `
     <span class="message-text">${html}</span>
-    ${
-      isBot
-        ? `<button class="copyBtn" onclick="copyText(this)" title="Copy">⧉</button>`
-        : ""
-    }
+    ${isBot ? `<button class="copyBtn" onclick="copyText(this)" title="Copy">⧉</button>` : ""}
   `;
 
   chatBox.appendChild(bubble);
@@ -111,8 +106,7 @@ function renderStoredChat() {
   chatBox.innerHTML = "";
   chatHistory.forEach((entry) => {
     if (entry.role === "user") appendMessage("user", entry.content);
-    else if (entry.role === "assistant")
-      appendMessage("bot", entry.content, true);
+    else if (entry.role === "assistant") appendMessage("bot", entry.content, true);
   });
 }
 
@@ -156,7 +150,6 @@ function renderMath() {
   }
 }
 
-// Voice in Tagalog
 function speakTagalog(text) {
   if (!"speechSynthesis" in window) return;
   const utter = new SpeechSynthesisUtterance(text);
@@ -164,18 +157,14 @@ function speakTagalog(text) {
   speechSynthesis.speak(utter);
 }
 
-// Theme toggle
-function toggleTheme() {
+window.toggleTheme = () => {
   document.body.classList.toggle("light-theme");
-}
+};
 
-// About toggle
-function toggleAbout() {
-  aboutSection.style.display =
-    aboutSection.style.display === "block" ? "none" : "block";
-}
+window.toggleAbout = () => {
+  aboutSection.style.display = aboutSection.style.display === "block" ? "none" : "block";
+};
 
-// Auth
 window.login = async () => {
   const email = document.getElementById("email").value.trim();
   const pass = document.getElementById("password").value.trim();
