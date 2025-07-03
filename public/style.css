@@ -1,5 +1,7 @@
 /* Reset + Global */
-*, *::before, *::after {
+*,
+*::before,
+*::after {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
@@ -69,32 +71,11 @@ html, body {
   background: #1f1f1f;
   padding: 14px 20px;
   border-bottom: 1px solid #333;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
 }
 .chat-container header h1 {
   color: #00ff99;
   font-size: 1.4rem;
   text-shadow: 0 0 10px #00ff99;
-}
-.logo {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-}
-.menu-buttons button {
-  background: #00ff99;
-  color: #000;
-  border: none;
-  border-radius: 10px;
-  padding: 6px 10px;
-  margin-left: 5px;
-  cursor: pointer;
-  font-size: 1.2rem;
-}
-.menu-buttons button:hover {
-  background: #00cc7a;
 }
 
 /* Chat Box */
@@ -209,50 +190,10 @@ html, body {
   40% { transform: scale(1.5); opacity: 1; }
 }
 
-/* Login Panel */
-#loginPanel {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin: 10px auto;
-}
-#loginPanel input, #loginPanel button {
-  margin: 5px;
-  padding: 10px;
-  border-radius: 10px;
-  border: none;
-  font-size: 1rem;
-}
-#loginPanel input {
-  background: #333;
-  color: #fff;
-  width: 250px;
-}
-#loginPanel button {
-  background: #00ff99;
-  color: #000;
-  font-weight: bold;
-}
-
-/* About Panel */
-#aboutPanel {
-  background: #222;
-  padding: 10px;
-  border-radius: 10px;
-  margin: 10px auto;
-  width: calc(100% - 40px);
-  max-width: 600px;
-  color: #ccc;
-  font-size: 0.95rem;
-}
-
 /* Mobile */
 @media (max-width: 600px) {
   .chat-container header h1 { font-size: 1.2rem; }
   #userInput { font-size: 0.9rem; padding: 10px 12px; }
   #chatForm button { padding: 0 16px; }
   .bubble { max-width: 90%; padding: 10px 14px; }
-  #loginPanel input {
-    width: 90%;
-  }
 }
