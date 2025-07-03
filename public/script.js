@@ -110,6 +110,12 @@ function copyText(btn) {
     btn.title = "Copy";
   }, 1000);
 }
+function clearChat() {
+  localStorage.removeItem("norchHistory");
+  chatBox.innerHTML = "";
+  chatHistory = [];
+}
+
 
 function renderMath() {
   if (typeof MathJax !== "undefined") {
