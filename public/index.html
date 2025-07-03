@@ -2,90 +2,178 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Norch</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="icon" type="image/png" href="/favicon.png" />
+  <title>Norch</title>
+  <link rel="icon" href="/favicon.png" />
   <link rel="stylesheet" href="/style.css" />
-
-  <!-- Firebase SDKs -->
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-    import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-
-    const firebaseConfig = {
-      apiKey: "AIzaSyD0xMxtjoG1Zj1Jvvn5gFiBND16yHL6oA",
-      authDomain: "norch-app-da539.firebaseapp.com",
-      projectId: "norch-app-da539",
-      storageBucket: "norch-app-da539.appspot.com",
-      messagingSenderId: "610778572844",
-      appId: "1:610778572844:web:bd064667e5dee374e20989"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    window.auth = getAuth(app);
-    window.db = getFirestore(app);
-  </script>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #121212;
+      color: #eee;
+    }
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: #1e1e1e;
+      padding: 10px 20px;
+      border-bottom: 1px solid #333;
+    }
+    header h1 {
+      font-size: 1.3rem;
+      color: #00ff99;
+      display: flex;
+      align-items: center;
+      text-shadow: 0 0 8px #00ff99;
+    }
+    .logo {
+      height: 36px;
+      margin-right: 10px;
+    }
+    .header-actions button {
+      margin-left: 8px;
+      padding: 6px 10px;
+      border-radius: 8px;
+      background: linear-gradient(145deg, #00ff99, #00cc7a);
+      color: #000;
+      border: none;
+      font-weight: bold;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+    .header-actions button:hover {
+      transform: scale(1.1);
+    }
+    .chat-container {
+      padding: 20px;
+    }
+    .chat-box {
+      min-height: 300px;
+      background: #1a1a1a;
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 20px;
+      overflow-y: auto;
+    }
+    #chatForm {
+      display: flex;
+      gap: 8px;
+    }
+    #chatForm input {
+      flex: 1;
+      padding: 12px;
+      border-radius: 20px;
+      border: none;
+      outline: none;
+      background: #2b2b2b;
+      color: white;
+    }
+    #chatForm button {
+      padding: 10px 18px;
+      border: none;
+      border-radius: 20px;
+      background: #00ff99;
+      color: #000;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    #aboutPanel {
+      display: none;
+      background: #1f1f1f;
+      border: 1px solid #333;
+      margin: 20px;
+      padding: 20px;
+      border-radius: 12px;
+      animation: slideDown 0.4s ease forwards;
+    }
+    @keyframes slideDown {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .auth-box {
+      display: flex;
+      gap: 8px;
+      margin-top: 10px;
+    }
+    .auth-box input {
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid #555;
+      background: #222;
+      color: white;
+    }
+    .auth-box button {
+      padding: 10px;
+      border-radius: 8px;
+      background: #00ff99;
+      border: none;
+      font-weight: bold;
+      cursor: pointer;
+    }
+  </style>
 </head>
-
 <body>
-  <!-- Loading -->
-  <div id="loadingScreen">
-    <div class="spinner"></div>
-    <h2>Loading Norch...</h2>
-  </div>
+  <header>
+    <div style="display:flex; align-items:center;">
+      <img src="/favicon.png" alt="Norch Logo" class="logo" />
+      <h1>NORCH BY APRIL MANALO</h1>
+    </div>
+    <div class="header-actions">
+      <button id="aboutToggle">⋯</button>
+      <button id="themeToggle">🔁</button>
+      <button id="authToggle">👤</button>
+    </div>
+  </header>
 
-  <!-- Header -->
   <div class="chat-container">
-    <header>
-      <h1>💬 NORCH BY APRIL MANALO</h1>
-      <div class="menu">
-        <button onclick="toggleTheme()">🔁</button>
-        <button onclick="toggleAbout()">⋯</button>
-        <button onclick="logout()">🚪</button>
-      </div>
-    </header>
-
-    <!-- About AI -->
-    <div id="aboutSection">
+    <div id="aboutPanel">
       <h2>🤖 About Norch</h2>
-      <p>
-        Norch is a Filipino GPT AI assistant created by <strong>April Manalo</strong><br />
-        Trained by the Norch Team. Powered by GPT-40 API.<br />
-        💡 Supports Markdown, LaTeX, Tagalog voice, and memory.
-      </p>
+      <p>Norch is a Filipino GPT AI assistant created by <b>April Manalo</b>.<br />Trained by the Norch Team. Powered by GPT-40 API.<br />💡 Supports Markdown, LaTeX, Tagalog voice, and memory.</p>
     </div>
 
-    <!-- Login -->
-    <div class="auth-box" id="loginBox">
-      <input type="email" id="email" placeholder="Email" />
-      <input type="password" id="password" placeholder="Password" />
-      <button onclick="login()">🔓 Login</button>
-      <button onclick="register()">📝 Register</button>
-    </div>
+    <div class="chat-box" id="chatBox"></div>
 
-    <!-- Chat -->
-    <div class="chat-box" id="chatBox" hidden></div>
-
-    <form id="chatForm" hidden>
-      <input id="userInput" type="text" placeholder="Ask me anything..." autocomplete="off" />
+    <form id="chatForm">
+      <input id="userInput" type="text" placeholder="Ask me anything..." />
       <button type="submit">Send</button>
-      <button onclick="clearChat()">🗑️</button>
     </form>
+
+    <div class="auth-box" id="authBox" style="display:none;">
+      <input type="email" placeholder="Email" id="email" />
+      <input type="password" placeholder="Password" id="password" />
+      <button onclick="loginUser()">🔐 Login</button>
+      <button onclick="registerUser()">📝 Register</button>
+    </div>
   </div>
 
-  <!-- Markdown -->
-  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-  <!-- MathJax -->
   <script>
-    window.MathJax = {
-      tex: { inlineMath: [['\\(', '\\)'], ['$', '$']] },
-      svg: { fontCache: 'global' }
+    document.getElementById("aboutToggle").onclick = () => {
+      const panel = document.getElementById("aboutPanel");
+      panel.style.display = panel.style.display === "block" ? "none" : "block";
     };
-  </script>
-  <script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
 
-  <!-- Script -->
-  <script src="/script.js" type="module"></script>
+    document.getElementById("authToggle").onclick = () => {
+      const auth = document.getElementById("authBox");
+      auth.style.display = auth.style.display === "flex" ? "none" : "flex";
+    };
+
+    function loginUser() {
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+      alert(`Logging in as ${email}`); // Replace with Firebase login
+    }
+
+    function registerUser() {
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+      alert(`Registering ${email}`); // Replace with Firebase register
+    }
+  </script>
 </body>
 </html>
