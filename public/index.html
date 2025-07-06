@@ -19,7 +19,7 @@
   <!-- Markdown Parser -->
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 
-  <!-- Axios (required for script.js if using axios.get) -->
+  <!-- Axios -->
   <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 </head>
 <body>
@@ -35,26 +35,21 @@
 
     <div class="chat-box"></div>
 
-    <!-- Image Preview -->
-    <div id="previewImageContainer" style="display:none; padding: 0 12px;">
+    <!-- Image Preview with remove button -->
+    <div id="previewImageContainer" style="display:none; position:relative; padding: 0 12px;">
       <img id="previewImage" src="" style="max-width: 100%; max-height: 200px; border-radius: 12px;" />
+      <button id="removeImageBtn" title="Remove Image" style="position:absolute; top:6px; right:18px; background:#ff4444; color:white; border:none; border-radius:50%; width:24px; height:24px; cursor:pointer; font-weight:bold;">×</button>
     </div>
 
     <!-- Input Form -->
     <form id="chatForm" enctype="multipart/form-data">
-      <input
-        id="userInput"
-        type="text"
-        placeholder="Ask something... or try 'generate a cute cat'"
-        autocomplete="off"
-        required
-      />
+      <input id="userInput" type="text" placeholder="Ask something... or try 'generate a cute cat'" autocomplete="off" required />
       <input id="imageInput" type="file" accept="image/*" />
       <button id="sendBtn" type="submit">Send</button>
     </form>
   </div>
 
-  <!-- Main Logic -->
+  <!-- Main Script -->
   <script src="/script.js"></script>
 </body>
 </html>
