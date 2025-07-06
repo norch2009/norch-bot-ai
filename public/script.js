@@ -35,7 +35,7 @@ imageInput.addEventListener("change", () => {
 });
 
 // Remove image
-removeImageBtn.addEventListener("click", () => {
+removeImageBtn?.addEventListener("click", () => {
   imageInput.value = "";
   previewImage.src = "";
   previewImageContainer.style.display = "none";
@@ -50,13 +50,22 @@ form.addEventListener("submit", async (e) => {
   if (question) appendMessage("user", question);
   appendThinkingAnimation();
 
+  // ⚠️ Clear agad
+  const tempImg = imageInput.files[0];
+  input.value = "";
+  imageInput.value = "";
+  previewImage.src = "";
+  previewImageContainer.style.display = "none";
+  sendBtn.disabled = true;
+  sendBtn.textContent = "Sending...";
+
   try {
     let imageUrl = "";
-    if (imageInput.files.length) {
-      imageUrl = await uploadImage(imageInput.files[0]);
+    if (tempImg) {
+      imageUrl = await uploadImage(tempImg);
     }
 
-    const uid = "example"; // You can set this dynamically
+    const uid = "example";
     const fullUrl = `https://gpt-scraper-vtv2.onrender.com/api/chat?img_url=${encodeURIComponent(imageUrl)}&ask=${encodeURIComponent(question)}&uid=${uid}`;
 
     const response = await axios.get(fullUrl);
@@ -66,15 +75,11 @@ form.addEventListener("submit", async (e) => {
 
     if (!data || !data.answer) {
       appendMessage("bot", "⚠️ Walang sagot mula kay Norch.", true);
-      return;
-    }
-
-    if (data.type === "image-generation") {
+    } else if (data.type === "image-generation") {
       appendImage(data.answer);
     } else {
       appendMessage("bot", data.answer, true);
     }
-
   } catch (err) {
     console.error("❌ ERROR:", err.message || err);
     removeThinkingAnimation();
@@ -83,10 +88,6 @@ form.addEventListener("submit", async (e) => {
 
   sendBtn.disabled = false;
   sendBtn.textContent = "Send";
-  input.value = "";
-  imageInput.value = "";
-  previewImage.src = "";
-  previewImageContainer.style.display = "none";
 });
 
 // Upload to ImgBB
