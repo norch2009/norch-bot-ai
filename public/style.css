@@ -128,36 +128,21 @@ html, body {
 /* Input Form */
 #chatForm {
   display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
   padding: 12px;
   background: #1f1f1f;
   border-top: 1px solid #333;
 }
 #userInput {
-  flex: 1 1 auto;
+  flex: 1;
   padding: 12px 16px;
   border: none;
   border-radius: 24px;
   background: #2a2a2a;
   color: #eee;
-  min-width: 160px;
+  margin-right: 8px;
 }
 #userInput::placeholder {
   color: #888;
-}
-#imageInput {
-  flex: 0 0 auto;
-  padding: 8px;
-  border: none;
-  border-radius: 24px;
-  background: #1f3b8d;
-  color: #fff;
-  cursor: pointer;
-  font-weight: bold;
-}
-#imageInput:hover {
-  background: #2259c5;
 }
 #chatForm button {
   padding: 0 20px;
@@ -170,18 +155,6 @@ html, body {
 }
 #chatForm button:hover {
   background: #00cc7a;
-}
-
-/* Image Preview */
-#previewImageContainer {
-  padding: 0 12px 12px;
-}
-#previewImage {
-  max-width: 100%;
-  max-height: 200px;
-  border-radius: 12px;
-  margin-top: 8px;
-  border: 2px solid #00ff99;
 }
 
 /* Scrollbar */
@@ -223,8 +196,4 @@ html, body {
   #userInput { font-size: 0.9rem; padding: 10px 12px; }
   #chatForm button { padding: 0 16px; }
   .bubble { max-width: 90%; padding: 10px 14px; }
-  #imageInput {
-    padding: 6px 10px;
-    font-size: 0.85rem;
-  }
 }
