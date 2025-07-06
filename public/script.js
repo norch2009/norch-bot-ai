@@ -18,6 +18,7 @@ window.onload = () => {
   }, 1500);
 };
 
+// Show preview of uploaded image
 imageInput.addEventListener("change", () => {
   const file = imageInput.files[0];
   if (file) {
@@ -32,35 +33,39 @@ imageInput.addEventListener("change", () => {
   }
 });
 
+// Handle form submit
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
   const question = input.value.trim();
   if (!question && !imageInput.files.length) return;
 
-  appendMessage("user", question);
-  input.value = "";
-  sendBtn.disabled = true;
-  sendBtn.textContent = "⏳";
+  // Show user message
+  if (question) appendMessage("user", question);
+
+  // Show thinking
   appendThinkingAnimation();
 
   try {
     let imageUrl = "";
     if (imageInput.files.length) {
-      imageUrl = await uploadImage(imageInput.files[0]); // Upload image
+      imageUrl = await uploadImage(imageInput.files[0]); // Simulated upload
     }
 
-    const uid = "example";
+    const uid = "example"; // You can dynamically set this
     const encodedQuestion = encodeURIComponent(question || "What is this?");
     const fullUrl = `https://gpt-scraper-vtv2.onrender.com/api/chat?img_url=${encodeURIComponent(imageUrl)}&ask=${encodedQuestion}&uid=${uid}`;
+
     const res = await fetch(fullUrl);
     const data = await res.json();
 
     removeThinkingAnimation();
+
     if (data.type === "image-generation") {
-      appendImage(data.answer);
+      appendImage(data.answer); // API returns direct image URL
     } else {
       appendMessage("bot", data.answer || "⚠️ Empty response.", true);
     }
+
   } catch (err) {
     console.error(err);
     removeThinkingAnimation();
@@ -69,23 +74,42 @@ form.addEventListener("submit", async (e) => {
 
   sendBtn.disabled = false;
   sendBtn.textContent = "Send";
+  input.value = "";
   imageInput.value = "";
   previewImageContainer.style.display = "none";
 });
 
+// Append text message
 function appendMessage(sender, text, isBot = false) {
   const bubble = document.createElement("div");
   bubble.className = `bubble ${sender}`;
-  const html = marked.parse(text);
-  bubble.innerHTML = `
-    <span class="message-text">${html}</span>
-    ${isBot ? `<button class="copyBtn" onclick="copyText(this)" title="Copy">⧉</button>` : ""}
-  `;
+
+  const messageSpan = document.createElement("span");
+  messageSpan.className = "message-text";
+  bubble.appendChild(messageSpan);
+
+  if (isBot) {
+    const copyBtn = document.createElement("button");
+    copyBtn.className = "copyBtn";
+    copyBtn.title = "Copy";
+    copyBtn.innerHTML = "⧉";
+    copyBtn.onclick = () => copyText(copyBtn);
+    bubble.appendChild(copyBtn);
+  }
+
   chatBox.appendChild(bubble);
   chatBox.scrollTop = chatBox.scrollHeight;
-  if (isBot) renderMath();
+
+  if (isBot) {
+    typeEffect(messageSpan, text, () => {
+      renderMath();
+    });
+  } else {
+    messageSpan.textContent = text;
+  }
 }
 
+// Append generated image
 function appendImage(imageUrl) {
   const bubble = document.createElement("div");
   bubble.className = `bubble bot`;
@@ -97,6 +121,7 @@ function appendImage(imageUrl) {
   chatBox.scrollTop = chatBox.scrollHeight;
 }
 
+// Typing animation indicator
 function appendThinkingAnimation() {
   const thinking = document.createElement("div");
   thinking.className = "bubble bot typing";
@@ -114,6 +139,7 @@ function removeThinkingAnimation() {
   if (typingBubble) typingBubble.remove();
 }
 
+// Copy text message
 function copyText(btn) {
   const temp = document.createElement("textarea");
   const rawText = btn.parentElement.querySelector(".message-text").innerText;
@@ -131,24 +157,45 @@ function copyText(btn) {
   }, 1000);
 }
 
+// Copy image link
 function copyImage(url) {
   navigator.clipboard.writeText(url).then(() => {
     alert("Image URL copied to clipboard!");
   });
 }
 
+// Render LaTeX (MathJax)
 function renderMath() {
   if (typeof MathJax !== "undefined") {
     MathJax.typesetPromise && MathJax.typesetPromise();
   }
 }
 
+// Simulate image upload via Base64 (fake image hosting)
 async function uploadImage(file) {
-  // For now, convert image to base64 Data URL to simulate upload
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
-    reader.onload = () => resolve(reader.result); // Use base64 data
+    reader.onload = () => resolve(reader.result); // Base64
     reader.onerror = reject;
     reader.readAsDataURL(file);
   });
+}
+
+// Typing effect (letter by letter)
+function typeEffect(target, text, callback) {
+  let i = 0;
+  let html = "";
+  const speed = 10;
+
+  const interval = setInterval(() => {
+    html += text[i++];
+    target.innerHTML = marked.parse(html);
+
+    if (i >= text.length) {
+      clearInterval(interval);
+      callback && callback();
+    }
+
+    chatBox.scrollTop = chatBox.scrollHeight;
+  }, speed);
 }
