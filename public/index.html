@@ -2,30 +2,41 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>GPT-40 Chat</title>
+  <title>GPT-40 Chat - Norch by April</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="icon" href="/favicon.png" />
   <link rel="stylesheet" href="/style.css" />
 </head>
 <body>
+  <!-- Loading Screen -->
   <div id="loadingScreen">
     <div class="spinner"></div>
     <h2>Loading Norch...</h2>
   </div>
 
+  <!-- Main Chat UI -->
   <div class="chat-container">
     <header><h1>💬 NORCH BY APRIL MANALO</h1></header>
+
     <div class="chat-box"></div>
-    <form id="chatForm">
-      <input id="userInput" type="text" placeholder="Ask me anything..." autocomplete="off" />
-      <button type="submit">Send</button>
+
+    <!-- Image Preview -->
+    <div id="previewImageContainer" style="display:none; padding: 0 12px;">
+      <img id="previewImage" src="" style="max-width: 100%; max-height: 200px; border-radius: 12px;" />
+    </div>
+
+    <!-- Input Form -->
+    <form id="chatForm" enctype="multipart/form-data">
+      <input id="userInput" type="text" placeholder="Ask, upload image, or say 'generate cat'..." autocomplete="off" />
+      <input id="imageInput" type="file" accept="image/*" />
+      <button type="submit" id="sendBtn">Send</button>
     </form>
   </div>
 
-  <!-- Markdown -->
+  <!-- Markdown Parser -->
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 
-  <!-- MathJax -->
+  <!-- MathJax for LaTeX -->
   <script>
     window.MathJax = {
       tex: { inlineMath: [['\\(', '\\)'], ['$', '$']] },
@@ -34,7 +45,7 @@
   </script>
   <script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
 
-  <!-- Your JS -->
+  <!-- Script -->
   <script src="/script.js"></script>
 </body>
 </html>
