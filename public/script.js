@@ -4,6 +4,7 @@ const chatBox = document.querySelector(".chat-box");
 const imageInput = document.getElementById("imageInput");
 const previewImage = document.getElementById("previewImage");
 const previewImageContainer = document.getElementById("previewImageContainer");
+const removeImageBtn = document.getElementById("removeImageBtn");
 const loading = document.getElementById("loadingScreen");
 const container = document.querySelector(".chat-container");
 const sendBtn = document.getElementById("sendBtn");
@@ -18,7 +19,7 @@ window.onload = () => {
   }, 1500);
 };
 
-// Show image preview
+// Image preview
 imageInput.addEventListener("change", () => {
   const file = imageInput.files[0];
   if (file) {
@@ -33,7 +34,14 @@ imageInput.addEventListener("change", () => {
   }
 });
 
-// Handle chat submit
+// Remove image
+removeImageBtn.addEventListener("click", () => {
+  imageInput.value = "";
+  previewImage.src = "";
+  previewImageContainer.style.display = "none";
+});
+
+// Submit form
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
   const question = input.value.trim();
@@ -48,7 +56,7 @@ form.addEventListener("submit", async (e) => {
       imageUrl = await uploadImage(imageInput.files[0]);
     }
 
-    const uid = "example"; // replace with real UID
+    const uid = "example"; // You can set this dynamically
     const fullUrl = `https://gpt-scraper-vtv2.onrender.com/api/chat?img_url=${encodeURIComponent(imageUrl)}&ask=${encodeURIComponent(question)}&uid=${uid}`;
 
     const response = await axios.get(fullUrl);
@@ -77,10 +85,11 @@ form.addEventListener("submit", async (e) => {
   sendBtn.textContent = "Send";
   input.value = "";
   imageInput.value = "";
+  previewImage.src = "";
   previewImageContainer.style.display = "none";
 });
 
-// Upload image using ImgBB
+// Upload to ImgBB
 async function uploadImage(file) {
   const apiKey = "35132e805bfdcb6f70e048cd1305f112";
   const formData = new FormData();
@@ -95,7 +104,7 @@ async function uploadImage(file) {
   }
 }
 
-// Append text message
+// Append message
 function appendMessage(sender, text, isBot = false) {
   const bubble = document.createElement("div");
   bubble.className = `bubble ${sender}`;
@@ -125,7 +134,7 @@ function appendMessage(sender, text, isBot = false) {
   }
 }
 
-// Append image message
+// Append image
 function appendImage(imageUrl) {
   const bubble = document.createElement("div");
   bubble.className = "bubble bot";
@@ -155,7 +164,7 @@ function removeThinkingAnimation() {
   if (typingBubble) typingBubble.remove();
 }
 
-// Copy text message
+// Copy text
 function copyText(btn) {
   const temp = document.createElement("textarea");
   const rawText = btn.parentElement.querySelector(".message-text").innerText;
@@ -180,7 +189,7 @@ function copyImage(url) {
   });
 }
 
-// LaTeX render
+// Render LaTeX
 function renderMath() {
   if (typeof MathJax !== "undefined") {
     MathJax.typesetPromise && MathJax.typesetPromise();
