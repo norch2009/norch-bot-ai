@@ -48,7 +48,7 @@ form.addEventListener("submit", async (e) => {
       imageUrl = await uploadImage(imageInput.files[0]);
     }
 
-    const uid = "example"; // Change to actual user ID if needed
+    const uid = "example"; // replace with real UID
     const fullUrl = `https://gpt-scraper-vtv2.onrender.com/api/chat?img_url=${encodeURIComponent(imageUrl)}&ask=${encodeURIComponent(question)}&uid=${uid}`;
 
     const response = await axios.get(fullUrl);
@@ -79,6 +79,21 @@ form.addEventListener("submit", async (e) => {
   imageInput.value = "";
   previewImageContainer.style.display = "none";
 });
+
+// Upload image using ImgBB
+async function uploadImage(file) {
+  const apiKey = "35132e805bfdcb6f70e048cd1305f112";
+  const formData = new FormData();
+  formData.append("image", file);
+
+  try {
+    const res = await axios.post(`https://api.imgbb.com/1/upload?key=${apiKey}`, formData);
+    return res.data.data.url;
+  } catch (err) {
+    console.error("❌ Image upload failed:", err);
+    throw new Error("Image upload failed");
+  }
+}
 
 // Append text message
 function appendMessage(sender, text, isBot = false) {
@@ -122,7 +137,7 @@ function appendImage(imageUrl) {
   chatBox.scrollTop = chatBox.scrollHeight;
 }
 
-// Typing indicator
+// Typing animation
 function appendThinkingAnimation() {
   const thinking = document.createElement("div");
   thinking.className = "bubble bot typing";
@@ -140,7 +155,7 @@ function removeThinkingAnimation() {
   if (typingBubble) typingBubble.remove();
 }
 
-// Copy text
+// Copy text message
 function copyText(btn) {
   const temp = document.createElement("textarea");
   const rawText = btn.parentElement.querySelector(".message-text").innerText;
@@ -158,31 +173,21 @@ function copyText(btn) {
   }, 1000);
 }
 
-// Copy image URL
+// Copy image
 function copyImage(url) {
   navigator.clipboard.writeText(url).then(() => {
     alert("Image URL copied to clipboard!");
   });
 }
 
-// LaTeX rendering
+// LaTeX render
 function renderMath() {
   if (typeof MathJax !== "undefined") {
     MathJax.typesetPromise && MathJax.typesetPromise();
   }
 }
 
-// Upload image as base64
-async function uploadImage(file) {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => resolve(reader.result);
-    reader.onerror = reject;
-    reader.readAsDataURL(file);
-  });
-}
-
-// Typing animation (letter by letter)
+// Typing effect
 function typeEffect(target, text, callback) {
   let i = 0;
   let html = "";
@@ -191,12 +196,10 @@ function typeEffect(target, text, callback) {
   const interval = setInterval(() => {
     html += text[i++];
     target.innerHTML = marked.parse(html);
-
     if (i >= text.length) {
       clearInterval(interval);
       callback && callback();
     }
-
     chatBox.scrollTop = chatBox.scrollHeight;
   }, speed);
 }
