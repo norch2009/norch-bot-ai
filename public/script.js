@@ -39,29 +39,26 @@ form.addEventListener("submit", async (e) => {
   const question = input.value.trim();
   if (!question && !imageInput.files.length) return;
 
-  // Show user message
   if (question) appendMessage("user", question);
-
-  // Show thinking
   appendThinkingAnimation();
 
   try {
     let imageUrl = "";
     if (imageInput.files.length) {
-      imageUrl = await uploadImage(imageInput.files[0]); // Simulated upload
+      imageUrl = await uploadImage(imageInput.files[0]); // Base64 simulation
     }
 
-    const uid = "example"; // You can dynamically set this
+    const uid = "example"; // Replace with real UID if needed
     const encodedQuestion = encodeURIComponent(question || "What is this?");
     const fullUrl = `https://gpt-scraper-vtv2.onrender.com/api/chat?img_url=${encodeURIComponent(imageUrl)}&ask=${encodedQuestion}&uid=${uid}`;
 
-    const res = await fetch(fullUrl);
-    const data = await res.json();
+    const response = await axios.get(fullUrl); // ✅ Axios used here
+    const data = response.data;
 
     removeThinkingAnimation();
 
     if (data.type === "image-generation") {
-      appendImage(data.answer); // API returns direct image URL
+      appendImage(data.answer);
     } else {
       appendMessage("bot", data.answer || "⚠️ Empty response.", true);
     }
@@ -171,17 +168,17 @@ function renderMath() {
   }
 }
 
-// Simulate image upload via Base64 (fake image hosting)
+// Simulate image upload via Base64
 async function uploadImage(file) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
-    reader.onload = () => resolve(reader.result); // Base64
+    reader.onload = () => resolve(reader.result);
     reader.onerror = reject;
     reader.readAsDataURL(file);
   });
 }
 
-// Typing effect (letter by letter)
+// Typing effect animation
 function typeEffect(target, text, callback) {
   let i = 0;
   let html = "";
