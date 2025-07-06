@@ -1,8 +1,12 @@
 const form = document.getElementById("chatForm");
 const input = document.getElementById("userInput");
 const chatBox = document.querySelector(".chat-box");
+const imageInput = document.getElementById("imageInput");
+const previewImage = document.getElementById("previewImage");
+const previewImageContainer = document.getElementById("previewImageContainer");
 const loading = document.getElementById("loadingScreen");
 const container = document.querySelector(".chat-container");
+const sendBtn = document.getElementById("sendBtn");
 
 window.onload = () => {
   setTimeout(() => {
@@ -14,27 +18,59 @@ window.onload = () => {
   }, 1500);
 };
 
+imageInput.addEventListener("change", () => {
+  const file = imageInput.files[0];
+  if (file) {
+    const reader = new FileReader();
+    reader.onload = () => {
+      previewImage.src = reader.result;
+      previewImageContainer.style.display = "block";
+    };
+    reader.readAsDataURL(file);
+  } else {
+    previewImageContainer.style.display = "none";
+  }
+});
+
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
   const question = input.value.trim();
-  if (!question) return;
+  if (!question && !imageInput.files.length) return;
 
   appendMessage("user", question);
   input.value = "";
+  sendBtn.disabled = true;
+  sendBtn.textContent = "⏳";
   appendThinkingAnimation();
 
   try {
-    const prompt = `You are Norch, a Filipino GPT AI assistant created by April Manalo and trained by the Norch Team. Answer politely and clearly. Use markdown and LaTeX formatting when needed.\n\nUser: ${question}`;
-    const res = await fetch(`https://gpt-40.onrender.com/api/gpt?ask=${encodeURIComponent(prompt)}`);
+    let imageUrl = "";
+    if (imageInput.files.length) {
+      imageUrl = await uploadImage(imageInput.files[0]); // Upload image
+    }
+
+    const uid = "example";
+    const encodedQuestion = encodeURIComponent(question || "What is this?");
+    const fullUrl = `https://gpt-scraper-vtv2.onrender.com/api/chat?img_url=${encodeURIComponent(imageUrl)}&ask=${encodedQuestion}&uid=${uid}`;
+    const res = await fetch(fullUrl);
     const data = await res.json();
-    const botReply = data.response || "⚠️ Empty response.";
 
     removeThinkingAnimation();
-    appendMessage("bot", botReply, true);
+    if (data.type === "image-generation") {
+      appendImage(data.answer);
+    } else {
+      appendMessage("bot", data.answer || "⚠️ Empty response.", true);
+    }
   } catch (err) {
+    console.error(err);
     removeThinkingAnimation();
-    appendMessage("bot", "❌ Failed to connect to GPT-40.");
+    appendMessage("bot", "❌ Failed to connect to Norch.");
   }
+
+  sendBtn.disabled = false;
+  sendBtn.textContent = "Send";
+  imageInput.value = "";
+  previewImageContainer.style.display = "none";
 });
 
 function appendMessage(sender, text, isBot = false) {
@@ -48,6 +84,17 @@ function appendMessage(sender, text, isBot = false) {
   chatBox.appendChild(bubble);
   chatBox.scrollTop = chatBox.scrollHeight;
   if (isBot) renderMath();
+}
+
+function appendImage(imageUrl) {
+  const bubble = document.createElement("div");
+  bubble.className = `bubble bot`;
+  bubble.innerHTML = `
+    <img src="${imageUrl}" alt="Generated Image" style="max-width: 100%; border-radius: 12px;" />
+    <button class="copyBtn" onclick="copyImage('${imageUrl}')" title="Copy Image">⧉</button>
+  `;
+  chatBox.appendChild(bubble);
+  chatBox.scrollTop = chatBox.scrollHeight;
 }
 
 function appendThinkingAnimation() {
@@ -84,8 +131,24 @@ function copyText(btn) {
   }, 1000);
 }
 
+function copyImage(url) {
+  navigator.clipboard.writeText(url).then(() => {
+    alert("Image URL copied to clipboard!");
+  });
+}
+
 function renderMath() {
   if (typeof MathJax !== "undefined") {
     MathJax.typesetPromise && MathJax.typesetPromise();
   }
+}
+
+async function uploadImage(file) {
+  // For now, convert image to base64 Data URL to simulate upload
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result); // Use base64 data
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
 }
