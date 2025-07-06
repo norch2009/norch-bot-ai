@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>GPT-40 Chat - Norch by April</title>
+  <title>Norch GPT-40 Chat</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="icon" href="/favicon.png" />
   <link rel="stylesheet" href="/style.css" />
@@ -27,16 +27,20 @@
 
     <!-- Input Form -->
     <form id="chatForm" enctype="multipart/form-data">
-      <input id="userInput" type="text" placeholder="Ask, upload image, or say 'generate cat'..." autocomplete="off" />
+      <input
+        id="userInput"
+        type="text"
+        placeholder="Ask something... or try 'generate a cute cat'"
+        autocomplete="off"
+        required
+      />
       <input id="imageInput" type="file" accept="image/*" />
-      <button type="submit" id="sendBtn">Send</button>
+      <button id="sendBtn" type="submit">Send</button>
     </form>
   </div>
 
-  <!-- Markdown Parser -->
+  <!-- Dependencies -->
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-
-  <!-- MathJax for LaTeX -->
   <script>
     window.MathJax = {
       tex: { inlineMath: [['\\(', '\\)'], ['$', '$']] },
@@ -45,7 +49,7 @@
   </script>
   <script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
 
-  <!-- Script -->
+  <!-- Main Script -->
   <script src="/script.js"></script>
 </body>
 </html>
